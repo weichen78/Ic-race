@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 收支挑戰賽</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Noto+Serif+TC:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #1a2812;
+    --ink:       #1e2a18;
+    --card-bg:   #f5f0e8;
+    --cream:     #f0ebe0;
+    --mustard:   #c9a84c;
+    --mustard-d: #a8873a;
+    --mustard-lt:#dfc278;
+    --olive:     #7a8c4e;
+    --olive-d:   #4a5530;
+    --olive-lt:  #9aae6a;
+    --burgundy:  #8b2635;
+    --burgundy-d:#6a1c28;
+    --burgundy-lt:#b84458;
+    --ink-light: #3a4a28;
+    --ink-muted: #5a6a48;
+    --shadow:    0 4px 28px rgba(20,30,10,0.28);
+    --shadow-sm: 0 2px 12px rgba(20,30,10,0.16);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Noto Serif TC', serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 15%, rgba(60,90,30,0.40) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 85%, rgba(10,18,6,0.60) 0%, transparent 50%);
+    min-height: 100vh;
+    color: var(--ink);
+    padding-bottom: 80px;
+  }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+  /* ── HERO HEADER ── */
+  .header {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;
+    margin-bottom: 36px;
+    padding: 56px 20px 48px;
+    text-align: center;
+    background: rgba(0,0,0,0.18);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.30em;
+    color: var(--cream);
+    opacity: 0.55;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 6.5vw, 56px);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .header h1 span { color: var(--mustard); }
+  .header-sub {
+    margin-top: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── SECTION TITLES ── */
+  .section-title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 36px 0 16px;
+  }
+  .section-title h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--cream);
+  }
+  .section-title .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+
+  /* ══════════════════════ RACE TRACK ══════════════════════ */
+  .race-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 28px 28px 24px;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .race-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0; width: 6px;
+  }
+  .race-card.income::before { background: var(--olive); }
+  .race-card.expense::before { background: var(--burgundy); }
+
+  .race-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .race-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .race-icon { font-size: 26px; }
+  .race-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    font-weight: 700;
+  }
+  .race-card.income .race-title { color: var(--olive-d); }
+  .race-card.expense .race-title { color: var(--burgundy-d); }
+
+  .race-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    padding: 4px 16px;
+    border-radius: 8px;
+    color: #fff;
+    min-width: 90px;
+    text-align: center;
+  }
+  .race-card.income .race-pct { background: var(--olive); }
+  .race-card.expense .race-pct { background: var(--burgundy); }
+
+  .race-track {
+    position: relative;
+    background: rgba(90,106,72,0.14);
+    border-radius: 99px;
+    height: 26px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .race-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 26px;
+  }
+  .race-card.income .race-fill { background: var(--olive); }
+  .race-card.expense .race-fill { background: var(--burgundy); }
+  .race-flag {
+    font-size: 16px;
+    margin-right: 6px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+  }
+  .race-finish {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: repeating-linear-gradient(45deg, #fff 0 4px, transparent 4px 8px);
+    opacity: 0.5;
+  }
+
+  .race-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-muted);
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .race-card.income .race-meta .current { color: var(--olive-d); font-weight: 600; }
+  .race-card.expense .race-meta .current { color: var(--burgundy-d); font-weight: 600; }
+
+
+  /* ══════════════════════ JOURNEY: TW → SWITZERLAND ══════════════════════ */
+  .journey-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 28px 28px 22px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .journey-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0; width: 6px;
+    background: var(--mustard);
+  }
+  .journey-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .journey-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .journey-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 99px;
+    color: #fff;
+  }
+  .journey-status.ahead { background: var(--olive); }
+  .journey-status.behind { background: var(--burgundy); }
+  .journey-status.ontrack { background: var(--mustard); }
+
+  .journey-route {
+    position: relative;
+    height: 60px;
+    margin-bottom: 8px;
+  }
+  .journey-line {
+    position: absolute;
+    top: 50%;
+    left: 24px; right: 24px;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--ink-muted) 0 6px, transparent 6px 12px);
+    opacity: 0.35;
+    transform: translateY(-50%);
+  }
+  .journey-pace-line {
+    position: absolute;
+    top: 50%;
+    left: 24px;
+    height: 3px;
+    background: rgba(122,140,78,0.35);
+    transform: translateY(-50%);
+    transition: width 1s ease;
+    border-radius: 2px;
+  }
+  .journey-progress-line {
+    position: absolute;
+    top: 50%;
+    left: 24px;
+    height: 3px;
+    background: var(--mustard);
+    transform: translateY(-50%);
+    transition: width 1s ease;
+    border-radius: 2px;
+    z-index: 1;
+  }
+  .journey-endpoint {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    z-index: 2;
+  }
+  .journey-endpoint.start { left: 24px; }
+  .journey-endpoint.end { left: calc(100% - 24px); }
+  .journey-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 26px;
+    z-index: 3;
+    transition: left 1s cubic-bezier(0.4,0,0.2,1);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  }
+  .journey-pace-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(122,140,78,0.6);
+    background: transparent;
+    z-index: 2;
+    transition: left 1s ease;
+  }
+
+  .journey-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    padding: 0 4px;
+    margin-bottom: 14px;
+  }
+
+  .journey-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-muted);
+    padding-top: 12px;
+    border-top: 1px dashed rgba(90,106,72,0.25);
+  }
+  .journey-meta .actual { color: var(--mustard-d); font-weight: 600; }
+  .journey-meta .expected { color: var(--olive-d); }
+
+
+  /* ══════════════════════ OODA STATUS BADGE ══════════════════════ */
+  .ooda-card {
+    background: var(--ink);
+    border-radius: 14px;
+    padding: 18px 24px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .ooda-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ooda-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .ooda-steps {
+    display: flex;
+    gap: 6px;
+  }
+  .ooda-step {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 99px;
+    color: rgba(255,255,255,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+    transition: all 0.3s;
+  }
+  .ooda-step.active {
+    color: #fff;
+    border-color: transparent;
+  }
+  .ooda-step.active.observe  { background: var(--olive); }
+  .ooda-step.active.orient   { background: var(--mustard); }
+  .ooda-step.active.decide   { background: var(--burgundy-lt); }
+  .ooda-step.active.act      { background: var(--burgundy); }
+  .ooda-msg {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* ══════════════════════ DUEL BAR (income vs expense net) ══════════════════════ */
+  .duel-card {
+    background: var(--ink);
+    border-radius: 16px;
+    padding: 26px 28px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+  .duel-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .duel-bar {
+    display: flex;
+    height: 36px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.06);
+  }
+  .duel-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    transition: width 1s ease;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .duel-seg.income { background: var(--olive); }
+  .duel-seg.expense { background: var(--burgundy); }
+  .duel-result {
+    text-align: center;
+    margin-top: 14px;
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .duel-result.win { color: var(--olive-lt); }
+  .duel-result.lose { color: var(--burgundy-lt); }
+  .duel-sub {
+    text-align: center;
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* ══════════════════════ MINI TRACKS (sub-items inside a category) ══════════════════════ */
+  .mini-track-list {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(90,106,72,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .mini-track {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .mini-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-light);
+    font-weight: 500;
+  }
+  .mini-bar-track {
+    background: rgba(90,106,72,0.12);
+    border-radius: 99px;
+    height: 12px;
+    overflow: hidden;
+  }
+  .mini-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.8s ease;
+  }
+  .mini-bar-fill.mustard { background: var(--mustard); }
+  .mini-bar-fill.burgundy { background: var(--burgundy); }
+  .mini-bar-fill.olive { background: var(--olive); }
+  .mini-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    min-width: 95px;
+    text-align: right;
+  }
+  @media (max-width: 520px) {
+    .mini-track { grid-template-columns: 80px 1fr; }
+    .mini-value { grid-column: 1 / -1; text-align: left; min-width: 0; }
+  }
+
+  /* ══════════════════════ DEBT LANES ══════════════════════ */
+  .debt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 700px) {
+    .debt-grid { grid-template-columns: 1fr; }
+  }
+  .debt-card {
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .debt-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--burgundy-d);
+    margin-bottom: 4px;
+  }
+  .debt-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+  .debt-track {
+    background: rgba(139,38,53,0.10);
+    border-radius: 99px;
+    height: 16px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .debt-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--burgundy);
+    transition: width 0.8s ease;
+  }
+  .debt-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .debt-meta .paid { color: var(--burgundy-d); font-weight: 600; }
+  .debt-installments {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .install-dot {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    background: rgba(139,38,53,0.10);
+    border: 1px solid rgba(139,38,53,0.20);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .install-dot.paid {
+    background: var(--burgundy);
+    border-color: var(--burgundy);
+    color: #fff;
+  }
+  .install-dot:hover { transform: scale(1.12); }
+
+  /* ══════════════════════ INPUT ROW ══════════════════════ */
+  .input-card {
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 18px;
+  }
+  .input-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  @media (max-width: 520px) {
+    .input-row { grid-template-columns: 1fr; }
+  }
+  .input-row select, .input-row input {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 9px 12px;
+    border: 1.5px solid var(--olive);
+    border-radius: 6px;
+    background: rgba(140,165,140,0.06);
+    color: var(--ink);
+    outline: none;
+  }
+  .input-row input:focus, .input-row select:focus {
+    border-color: var(--mustard);
+    background: rgba(201,168,76,0.08);
+  }
+  .add-btn {
+    background: var(--mustard);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s;
+  }
+  .add-btn:hover { background: var(--mustard-d); }
+  .input-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  /* ══════════════════════ LOG ══════════════════════ */
+  .log-card {
+    background: var(--card-bg);
+    border-radius: 14px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .log-header {
+    background: var(--burgundy);
+    padding: 14px 22px;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .log-list { max-height: 280px; overflow-y: auto; }
+  .log-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 22px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-left { display: flex; align-items: center; gap: 10px; }
+  .log-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.06em;
+    color: #fff;
+  }
+  .log-tag.income { background: var(--olive); }
+  .log-tag.expense { background: var(--burgundy); }
+  .log-desc { color: var(--ink); }
+  .log-month { color: var(--ink-muted); font-size: 11px; }
+  .log-amt { font-weight: 600; }
+  .log-amt.income { color: var(--olive-d); }
+  .log-amt.expense { color: var(--burgundy-d); }
+  .log-del {
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 0 0 10px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+  .log-del:hover { opacity: 1; color: var(--burgundy); }
+  .log-empty {
+    padding: 24px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+
+  .footer-note {
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--cream);
+    opacity: 0.4;
+    letter-spacing: 0.08em;
+    margin-top: 10px;
+  }
+</style>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1a2812">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="收支賽">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+</head>
+<body>
+<div class="header">
+  <div class="header-label">Income vs Expense — Annual Challenge</div>
+  <h1>2026/06 – 2027/05<br><span>收支挑戰賽</span></h1>
+  <div class="header-sub">年度收入目標 NT$ 1,800,000 ｜ 房租預算 NT$ 800,000</div>
+</div>
+
+<div class="container">
+
+  <!-- ════ JOURNEY: TW → SWITZERLAND ════ -->
+  <div class="journey-card">
+    <div class="journey-header">
+      <div class="journey-title">🛫 台灣 → 瑞士　年度進度</div>
+      <div class="journey-status ontrack" id="journeyStatus">出發中</div>
+    </div>
+    <div class="journey-route">
+      <div class="journey-line"></div>
+      <div class="journey-pace-line" id="journeyPaceLine" style="width:0%"></div>
+      <div class="journey-progress-line" id="journeyProgLine" style="width:0%"></div>
+      <span class="journey-endpoint start">🇹🇼</span>
+      <span class="journey-endpoint end">🇨🇭</span>
+      <div class="journey-pace-marker" id="journeyPaceMarker" style="left:24px"></div>
+      <div class="journey-marker" id="journeyMarker" style="left:24px">✈️</div>
+    </div>
+    <div class="journey-labels">
+      <span>台北</span>
+      <span></span>
+      <span>瑞士</span>
+    </div>
+    <div class="journey-meta">
+      <span class="actual" id="journeyActual">實際進度：0%</span>
+      <span class="expected" id="journeyExpected">應達進度：0%（依今日日期）</span>
+      <span id="journeyDiff">差距：—</span>
+    </div>
+  </div>
+
+  <!-- ════ OODA STATUS ════ -->
+  <div class="ooda-card">
+    <div class="ooda-left">
+      <span class="ooda-label">OODA</span>
+      <div class="ooda-steps">
+        <span class="ooda-step" id="oodaObserve">Observe</span>
+        <span class="ooda-step" id="oodaOrient">Orient</span>
+        <span class="ooda-step" id="oodaDecide">Decide</span>
+        <span class="ooda-step" id="oodaAct">Act</span>
+      </div>
+    </div>
+    <span class="ooda-msg" id="oodaMsg">尚無資料，開始記錄以啟動循環</span>
+  </div>
+
+  <!-- ════ DUEL: NET RESULT ════ -->
+  <div class="duel-card">
+    <div class="duel-title">⚔️ 本期對決 — 收入 vs 支出</div>
+    <div class="duel-bar" id="duelBar">
+      <div class="duel-seg income" id="duelIncomeSeg">收入</div>
+      <div class="duel-seg expense" id="duelExpenseSeg">支出</div>
+    </div>
+    <div class="duel-result" id="duelResult">—</div>
+    <div class="duel-sub" id="duelSub">尚無資料</div>
+  </div>
+
+  <!-- ════ INCOME RACE ════ -->
+  <div class="section-title">
+    <h2>🟢 收入賽道</h2>
+    <span class="tag">Target NT$ 1,800,000</span>
+  </div>
+  <div class="race-card income">
+    <div class="race-header">
+      <div class="race-name">
+        <span class="race-icon">🏁</span>
+        <span class="race-title">年度收入目標</span>
+      </div>
+      <div class="race-pct" id="incomePct">0%</div>
+    </div>
+    <div class="race-track">
+      <div class="race-fill" id="incomeFill" style="width:0%"><span class="race-flag">🚀</span></div>
+      <div class="race-finish"></div>
+    </div>
+    <div class="race-meta">
+      <span class="current" id="incomeCurrent">已達成：NT$ 0</span>
+      <span id="incomeRemain">距終點：NT$ 1,800,000</span>
+    </div>
+  </div>
+
+  <!-- ════ EXPENSE RACE ════ -->
+  <div class="section-title">
+    <h2>🔴 支出賽道</h2>
+    <span class="tag">月度固定支出 NT$ 40,000 起</span>
+  </div>
+  <div class="race-card expense">
+    <div class="race-header">
+      <div class="race-name">
+        <span class="race-icon">💸</span>
+        <span class="race-title">本年度累計支出</span>
+      </div>
+      <div class="race-pct" id="expensePct">0%</div>
+    </div>
+    <div class="race-track">
+      <div class="race-fill" id="expenseFill" style="width:0%"><span class="race-flag">⚠️</span></div>
+      <div class="race-finish"></div>
+    </div>
+    <div class="race-meta">
+      <span class="current" id="expenseCurrent">累計支出：NT$ 0</span>
+      <span id="expenseLimit">警戒線：NT$ 1,800,000（等同收入目標）</span>
+    </div>
+
+    <!-- mini tracks: monthly fixed cost breakdown -->
+    <div class="mini-track-list">
+      <div class="mini-track">
+        <span class="mini-label">生活飲食</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill mustard" id="mtLiving" style="width:0%"></div></div>
+        <span class="mini-value" id="mtLivingVal">0 / 25,000 /月</span>
+      </div>
+      <div class="mini-track">
+        <span class="mini-label">交通</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill mustard" id="mtTransport" style="width:0%"></div></div>
+        <span class="mini-value" id="mtTransportVal">0 元</span>
+      </div>
+      <div class="mini-track">
+        <span class="mini-label">娛樂社交</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill mustard" id="mtSocial" style="width:0%"></div></div>
+        <span class="mini-value" id="mtSocialVal">0 元</span>
+      </div>
+      <div class="mini-track">
+        <span class="mini-label">補給水電</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill mustard" id="mtUtilities" style="width:0%"></div></div>
+        <span class="mini-value" id="mtUtilitiesVal">0 元</span>
+      </div>
+      <div class="mini-track">
+        <span class="mini-label">定期定額</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill olive" id="mtSavings" style="width:0%"></div></div>
+        <span class="mini-value" id="mtSavingsVal">0 / 10,000 /月</span>
+      </div>
+      <div class="mini-track">
+        <span class="mini-label">股票投資</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill olive" id="mtStock" style="width:0%"></div></div>
+        <span class="mini-value" id="mtStockVal">0 / 5,000 /月</span>
+      </div>
+      <div class="mini-track">
+        <span class="mini-label">房租</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill burgundy" id="mtRent" style="width:0%"></div></div>
+        <span class="mini-value" id="mtRentVal">0 / 800,000 /年</span>
+      </div>
+      <div class="mini-track">
+        <span class="mini-label">債務還款</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill burgundy" id="mtDebt" style="width:0%"></div></div>
+        <span class="mini-value" id="mtDebtVal">0 元</span>
+      </div>
+      <div class="mini-track">
+        <span class="mini-label">其他</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill burgundy" id="mtOther" style="width:0%"></div></div>
+        <span class="mini-value" id="mtOtherVal">0 元</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ DEBT LANES ════ -->
+  <div class="section-title">
+    <h2>🏃 債務還款賽道</h2>
+    <span class="tag">3 Lanes</span>
+  </div>
+  <div class="debt-grid">
+    <div class="debt-card">
+      <div class="debt-name">Mox 債務</div>
+      <div class="debt-sub">總額 NT$ 125,000 ｜ 一次性追蹤</div>
+      <div class="debt-track"><div class="debt-fill" id="debtMoxFill" style="width:0%"></div></div>
+      <div class="debt-meta">
+        <span class="paid" id="debtMoxPaid">已還 NT$ 0</span>
+        <span id="debtMoxPct">0%</span>
+      </div>
+    </div>
+    <div class="debt-card">
+      <div class="debt-name">大姐 債務</div>
+      <div class="debt-sub">總額 NT$ 60,000 ｜ 分 12 期，每期 NT$ 5,000</div>
+      <div class="debt-track"><div class="debt-fill" id="debtSisFill" style="width:0%"></div></div>
+      <div class="debt-meta">
+        <span class="paid" id="debtSisPaid">已還 NT$ 0</span>
+        <span id="debtSisPct">0 / 12 期</span>
+      </div>
+      <div class="debt-installments" id="debtSisDots"></div>
+    </div>
+    <div class="debt-card">
+      <div class="debt-name">Kristin 債務</div>
+      <div class="debt-sub">總額 NT$ 60,000 ｜ 分 12 期，每期 NT$ 5,000</div>
+      <div class="debt-track"><div class="debt-fill" id="debtKrisFill" style="width:0%"></div></div>
+      <div class="debt-meta">
+        <span class="paid" id="debtKrisPaid">已還 NT$ 0</span>
+        <span id="debtKrisPct">0 / 12 期</span>
+      </div>
+      <div class="debt-installments" id="debtKrisDots"></div>
+    </div>
+  </div>
+
+  <!-- ════ ADD ENTRY ════ -->
+  <div class="input-card">
+    <h3>📝 新增一筆記錄</h3>
+    <div class="input-row">
+      <select id="entryType">
+        <option value="income">💰 收入</option>
+        <option value="living">🍜 生活飲食</option>
+        <option value="transport">🚗 交通</option>
+        <option value="social">🎉 娛樂社交</option>
+        <option value="rent">🏠 房租</option>
+        <option value="savings">🏦 定期定額</option>
+        <option value="stock">📈 股票投資</option>
+        <option value="utilities">💡 補給水電</option>
+        <option value="debt">📉 債務還款</option>
+        <option value="other_expense">💸 其他</option>
+      </select>
+      <select id="entryMonth"></select>
+    </div>
+    <div class="input-row">
+      <input type="text" id="entryDesc" placeholder="說明（例如：午餐 / 製冰機）">
+      <input type="number" id="entryAmt" placeholder="金額 (NT$)" min="0">
+      <select id="entryPayMethod">
+        <option value="cash">💵 現金</option>
+        <option value="card">💳 信用卡</option>
+      </select>
+    </div>
+    <div class="input-row" style="grid-template-columns: 1fr;">
+      <button class="add-btn" onclick="addEntry()" style="width:100%; padding:11px;">新增記錄</button>
+    </div>
+    <div class="input-hint">💡 房租、定期定額、股票投入等固定支出建議逐月新增，方便累計進度。</div>
+  </div>
+
+  <!-- ════ LOG ════ -->
+  <div class="log-card">
+    <div class="log-header">📋 收支紀錄</div>
+    <div class="log-list" id="logList"></div>
+  </div>
+
+  <div class="footer-note">資料儲存於瀏覽器本地　·　追蹤起始 2026/06/16　·　<a href="#" onclick="resetAllData(); return false;" style="color:var(--burgundy-lt); text-decoration:underline;">清空所有資料</a></div>
+</div>
+
+<script>
+const ANNUAL_INCOME_TARGET = 1800000;
+const ANNUAL_RENT_BUDGET = 800000;
+const MONTHLY_LIVING = 25000;
+const MONTHLY_SAVINGS = 10000;
+const MONTHLY_STOCK = 5000;
+const DEBT_MOX_TOTAL = 125000;
+const DEBT_SIS_TOTAL = 60000;
+const DEBT_KRIS_TOTAL = 60000;
+const DEBT_INSTALLMENT = 5000;
+const INSTALLMENTS = 12;
+
+const MONTHS = [
+  "2026/06","2026/07","2026/08","2026/09","2026/10","2026/11",
+  "2026/12","2027/01","2027/02","2027/03","2027/04","2027/05"
+];
+
+function fmtNum(n) { return Math.round(n).toLocaleString('zh-TW'); }
+
+function loadEntries() {
+  try { return JSON.parse(localStorage.getItem('raceEntries') || '[]'); }
+  catch { return []; }
+}
+function saveEntries(arr) { localStorage.setItem('raceEntries', JSON.stringify(arr)); }
+
+function loadDebtPayments() {
+  try { return JSON.parse(localStorage.getItem('debtPayments') || '{"mox":0,"sis":[],"kris":[]}'); }
+  catch { return {mox:0, sis:[], kris:[]}; }
+}
+function saveDebtPayments(obj) { localStorage.setItem('debtPayments', JSON.stringify(obj)); }
+
+let entries = loadEntries();
+let debtPayments = loadDebtPayments();
+
+function resetAllData() {
+  if (!confirm('確定要清空所有收支與還款紀錄嗎？此操作無法復原。')) return;
+  localStorage.removeItem('raceEntries');
+  localStorage.removeItem('debtPayments');
+  entries = [];
+  debtPayments = {mox:0, sis:[], kris:[]};
+  render();
+}
+
+// Seed initial data from prior tracker (June 2026)
+// Data starts empty — tracking begins 2026/06/16
+
+// Populate month select
+const monthSelect = document.getElementById('entryMonth');
+MONTHS.forEach(m => {
+  const opt = document.createElement('option');
+  opt.value = m; opt.textContent = m;
+  monthSelect.appendChild(opt);
+});
+
+function categorySum(type) {
+  return entries.filter(e => e.type === type).reduce((s,e) => s + Number(e.amount||0), 0);
+}
+
+
+// ── JOURNEY: TW → SWITZERLAND ──
+const TRACK_START_DATE = new Date("2026-06-16T00:00:00");
+const TRACK_END_DATE = new Date("2027-05-31T23:59:59");
+
+function renderJourney(actualPct) {
+  const now = new Date();
+  const totalDays = (TRACK_END_DATE - TRACK_START_DATE) / 86400000;
+  let daysElapsed = (now - TRACK_START_DATE) / 86400000;
+  daysElapsed = Math.max(0, Math.min(totalDays, daysElapsed));
+  const expectedPct = (daysElapsed / totalDays) * 100;
+
+  // route is 24px to calc(100% - 24px); use percentage of inner width via CSS calc
+  const progLine = document.getElementById('journeyProgLine');
+  const paceLine = document.getElementById('journeyPaceLine');
+  const marker = document.getElementById('journeyMarker');
+  const paceMarker = document.getElementById('journeyPaceMarker');
+
+  const clampedActual = Math.max(0, Math.min(100, actualPct));
+  const clampedExpected = Math.max(0, Math.min(100, expectedPct));
+
+  progLine.style.width = `calc((100% - 48px) * ${clampedActual/100})`;
+  paceLine.style.width = `calc((100% - 48px) * ${clampedExpected/100})`;
+  marker.style.left = `calc(24px + (100% - 48px) * ${clampedActual/100})`;
+  paceMarker.style.left = `calc(24px + (100% - 48px) * ${clampedExpected/100})`;
+
+  // marker icon changes based on progress
+  if (clampedActual >= 100) marker.textContent = '🏔️';
+  else if (clampedActual > 5) marker.textContent = '✈️';
+  else marker.textContent = '🛫';
+
+  document.getElementById('journeyActual').textContent = `實際進度：${clampedActual.toFixed(1)}%`;
+  document.getElementById('journeyExpected').textContent = `應達進度：${clampedExpected.toFixed(1)}%（依今日日期）`;
+
+  const diff = clampedActual - clampedExpected;
+  const diffEl = document.getElementById('journeyDiff');
+  const statusEl = document.getElementById('journeyStatus');
+
+  if (Math.abs(diff) < 1) {
+    diffEl.textContent = '差距：持平 ✅';
+    statusEl.textContent = '準點飛行';
+    statusEl.className = 'journey-status ontrack';
+  } else if (diff > 0) {
+    diffEl.textContent = `差距：領先 ${diff.toFixed(1)}% 🎉`;
+    statusEl.textContent = '提前抵達中';
+    statusEl.className = 'journey-status ahead';
+  } else {
+    diffEl.textContent = `差距：落後 ${Math.abs(diff).toFixed(1)}% ⚠️`;
+    statusEl.textContent = '延誤中';
+    statusEl.className = 'journey-status behind';
+  }
+}
+
+
+// ── OODA STATUS LOGIC ──
+// Observe  = no data yet / just started, still gathering info
+// Orient   = data exists, behind pace -> need to assess situation
+// Decide   = behind pace significantly -> a decision/adjustment is needed
+// Act      = ahead of or on pace -> currently executing well, keep going
+function renderOODA(actualPct, expectedPct, hasEntries) {
+  const stepIds = ['oodaObserve', 'oodaOrient', 'oodaDecide', 'oodaAct'];
+  const stepClasses = ['observe', 'orient', 'decide', 'act'];
+  stepIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'ooda-step';
+  });
+
+  const msgEl = document.getElementById('oodaMsg');
+  const diff = actualPct - expectedPct;
+
+  let stage; // 0=observe,1=orient,2=decide,3=act
+  let msg;
+
+  if (!hasEntries) {
+    stage = 0;
+    msg = '尚無資料，開始記錄以啟動循環';
+  } else if (diff >= 0) {
+    // ahead of or on pace -> Act (keep executing)
+    stage = 3;
+    msg = diff > 3
+      ? `領先進度 ${diff.toFixed(1)}%，保持節奏，持續行動`
+      : '進度準點，維持目前的步調即可';
+  } else if (diff >= -5) {
+    // slightly behind -> Orient (re-assess)
+    stage = 1;
+    msg = `落後 ${Math.abs(diff).toFixed(1)}%，需重新評估收支狀況`;
+  } else {
+    // significantly behind -> Decide (action needed)
+    stage = 2;
+    msg = `落後 ${Math.abs(diff).toFixed(1)}%，建議調整支出或加開財源`;
+  }
+
+  document.getElementById(stepIds[stage]).className = 'ooda-step active ' + stepClasses[stage];
+  msgEl.textContent = msg;
+}
+
+function render() {
+  const totalIncome = categorySum('income');
+  const totalLiving = categorySum('living');
+  const totalTransport = categorySum('transport');
+  const totalSocial = categorySum('social');
+  const totalSavings = categorySum('savings');
+  const totalStock = categorySum('stock');
+  const totalRent = categorySum('rent');
+  const totalUtilities = categorySum('utilities');
+  const totalDebtRepay = categorySum('debt');
+  const totalOtherExp = categorySum('other_expense');
+  const totalExpense = totalLiving + totalTransport + totalSocial + totalSavings + totalStock + totalRent + totalUtilities + totalDebtRepay + totalOtherExp;
+
+  // ── INCOME RACE ──
+  const incPct = Math.min(100, (totalIncome / ANNUAL_INCOME_TARGET) * 100);
+  document.getElementById('incomeFill').style.width = incPct.toFixed(2) + '%';
+  document.getElementById('incomePct').textContent = incPct.toFixed(1) + '%';
+  document.getElementById('incomeCurrent').textContent = '已達成：NT$ ' + fmtNum(totalIncome);
+  document.getElementById('incomeRemain').textContent = totalIncome >= ANNUAL_INCOME_TARGET
+    ? '🎉 抵達終點！' : '距終點：NT$ ' + fmtNum(ANNUAL_INCOME_TARGET - totalIncome);
+
+  // ── JOURNEY BAR (driven by income progress) ──
+  renderJourney(incPct);
+
+  // ── OODA STATUS ──
+  const _now = new Date();
+  const _totalDays = (TRACK_END_DATE - TRACK_START_DATE) / 86400000;
+  let _daysElapsed = (_now - TRACK_START_DATE) / 86400000;
+  _daysElapsed = Math.max(0, Math.min(_totalDays, _daysElapsed));
+  const _expectedPct = (_daysElapsed / _totalDays) * 100;
+  renderOODA(incPct, _expectedPct, entries.length > 0);
+
+  // ── EXPENSE RACE (vs income target as ceiling reference) ──
+  const expPct = Math.min(100, (totalExpense / ANNUAL_INCOME_TARGET) * 100);
+  document.getElementById('expenseFill').style.width = expPct.toFixed(2) + '%';
+  document.getElementById('expensePct').textContent = expPct.toFixed(1) + '%';
+  document.getElementById('expenseCurrent').textContent = '累計支出：NT$ ' + fmtNum(totalExpense);
+
+  // ── DUEL BAR ──
+  const sumBoth = totalIncome + totalExpense;
+  let incShare = 50, expShare = 50;
+  if (sumBoth > 0) {
+    incShare = (totalIncome / sumBoth) * 100;
+    expShare = 100 - incShare;
+  }
+  const incSeg = document.getElementById('duelIncomeSeg');
+  const expSeg = document.getElementById('duelExpenseSeg');
+  incSeg.style.width = incShare + '%';
+  expSeg.style.width = expShare + '%';
+  incSeg.textContent = totalIncome > 0 ? 'NT$ ' + fmtNum(totalIncome) : '';
+  expSeg.textContent = totalExpense > 0 ? 'NT$ ' + fmtNum(totalExpense) : '';
+
+  const net = totalIncome - totalExpense;
+  const resultEl = document.getElementById('duelResult');
+  const subEl = document.getElementById('duelSub');
+  if (totalIncome === 0 && totalExpense === 0) {
+    resultEl.textContent = '—';
+    resultEl.className = 'duel-result';
+    subEl.textContent = '尚無資料';
+  } else if (net >= 0) {
+    resultEl.textContent = '🏆 收入領先 NT$ ' + fmtNum(net);
+    resultEl.className = 'duel-result win';
+    subEl.textContent = '目前淨結餘為正，繼續保持！';
+  } else {
+    resultEl.textContent = '⚠️ 支出領先 NT$ ' + fmtNum(Math.abs(net));
+    resultEl.className = 'duel-result lose';
+    subEl.textContent = '本期支出超過收入，留意現金流';
+  }
+
+  // ── MINI TRACKS ──
+  const monthsElapsed = new Set(entries.map(e => e.month)).size || 1;
+  const livingTarget = MONTHLY_LIVING * 12;
+  const savingsTarget = MONTHLY_SAVINGS * 12;
+  const stockTarget = MONTHLY_STOCK * 12;
+
+  setMini('mtLiving', 'mtLivingVal', totalLiving, livingTarget, `${fmtNum(totalLiving)} / ${fmtNum(livingTarget)} 年度`);
+  setMini('mtTransport', 'mtTransportVal', totalTransport, Math.max(totalTransport,1), `${fmtNum(totalTransport)} 元`);
+  setMini('mtSocial', 'mtSocialVal', totalSocial, Math.max(totalSocial,1), `${fmtNum(totalSocial)} 元`);
+  setMini('mtUtilities', 'mtUtilitiesVal', totalUtilities, Math.max(totalUtilities,1), `${fmtNum(totalUtilities)} 元`);
+  setMini('mtSavings', 'mtSavingsVal', totalSavings, savingsTarget, `${fmtNum(totalSavings)} / ${fmtNum(savingsTarget)} 年度`);
+  setMini('mtStock', 'mtStockVal', totalStock, stockTarget, `${fmtNum(totalStock)} / ${fmtNum(stockTarget)} 年度`);
+  setMini('mtRent', 'mtRentVal', totalRent, ANNUAL_RENT_BUDGET, `${fmtNum(totalRent)} / ${fmtNum(ANNUAL_RENT_BUDGET)} 年度`);
+  setMini('mtDebt', 'mtDebtVal', totalDebtRepay, Math.max(totalDebtRepay,1), `${fmtNum(totalDebtRepay)} 元`);
+  setMini('mtOther', 'mtOtherVal', totalOtherExp, Math.max(totalOtherExp,1), `${fmtNum(totalOtherExp)} 元`);
+
+  // ── DEBT LANES ──
+  const moxPaid = Number(debtPayments.mox || 0);
+  const moxPct = Math.min(100, (moxPaid / DEBT_MOX_TOTAL) * 100);
+  document.getElementById('debtMoxFill').style.width = moxPct + '%';
+  document.getElementById('debtMoxPaid').textContent = '已還 NT$ ' + fmtNum(moxPaid);
+  document.getElementById('debtMoxPct').textContent = moxPct.toFixed(0) + '%';
+
+  renderDebtInstallments('sis', debtPayments.sis || [], DEBT_SIS_TOTAL);
+  renderDebtInstallments('kris', debtPayments.kris || [], DEBT_KRIS_TOTAL);
+
+  renderLog();
+}
+
+function setMini(barId, valId, current, target, label) {
+  const pct = target > 0 ? Math.min(100, (current/target)*100) : 0;
+  document.getElementById(barId).style.width = pct + '%';
+  document.getElementById(valId).textContent = label;
+}
+
+function renderDebtInstallments(prefix, paidArr, total) {
+  const fillEl = document.getElementById('debt' + (prefix==='sis'?'Sis':'Kris') + 'Fill');
+  const paidEl = document.getElementById('debt' + (prefix==='sis'?'Sis':'Kris') + 'Paid');
+  const pctEl  = document.getElementById('debt' + (prefix==='sis'?'Sis':'Kris') + 'Pct');
+  const dotsEl = document.getElementById('debt' + (prefix==='sis'?'Sis':'Kris') + 'Dots');
+
+  const paidCount = paidArr.filter(Boolean).length;
+  const paidAmt = paidCount * DEBT_INSTALLMENT;
+  const pct = Math.min(100, (paidAmt/total)*100);
+
+  fillEl.style.width = pct + '%';
+  paidEl.textContent = '已還 NT$ ' + fmtNum(paidAmt);
+  pctEl.textContent = paidCount + ' / ' + INSTALLMENTS + ' 期';
+
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < INSTALLMENTS; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'install-dot' + (paidArr[i] ? ' paid' : '');
+    dot.textContent = i+1;
+    dot.title = `第 ${i+1} 期 (NT$ ${DEBT_INSTALLMENT.toLocaleString()})`;
+    dot.onclick = () => toggleInstallment(prefix, i);
+    dotsEl.appendChild(dot);
+  }
+}
+
+function toggleInstallment(prefix, idx) {
+  if (!debtPayments[prefix]) debtPayments[prefix] = [];
+  debtPayments[prefix][idx] = !debtPayments[prefix][idx];
+  saveDebtPayments(debtPayments);
+  render();
+}
+
+function renderLog() {
+  const listEl = document.getElementById('logList');
+  if (entries.length === 0) {
+    listEl.innerHTML = '<div class="log-empty">尚無紀錄，請在上方新增第一筆</div>';
+    return;
+  }
+  const typeLabels = {
+    income: '收入', living: '生活飲食', transport: '交通',
+    social: '娛樂社交', rent: '房租', savings: '定期定額',
+    stock: '股票投資', utilities: '補給水電', debt: '債務還款',
+    other_expense: '其他'
+  };
+  listEl.innerHTML = '';
+  // newest first
+  entries.slice().reverse().forEach((e, revIdx) => {
+    const idx = entries.length - 1 - revIdx;
+    const isIncome = e.type === 'income';
+    const item = document.createElement('div');
+    item.className = 'log-item';
+    const payIcon = e.payMethod === 'card' ? '💳' : (e.payMethod === 'cash' ? '💵' : '');
+    item.innerHTML = `
+      <div class="log-left">
+        <span class="log-tag ${isIncome ? 'income' : 'expense'}">${typeLabels[e.type] || e.type}</span>
+        <span class="log-desc">${payIcon} ${e.desc || '—'}</span>
+        <span class="log-month">${e.month}</span>
+      </div>
+      <div style="display:flex; align-items:center;">
+        <span class="log-amt ${isIncome ? 'income' : 'expense'}">${isIncome ? '+' : '－'}NT$ ${fmtNum(e.amount)}</span>
+        <button class="log-del" onclick="deleteEntry(${idx})">✕</button>
+      </div>
+    `;
+    listEl.appendChild(item);
+  });
+}
+
+function addEntry() {
+  const type = document.getElementById('entryType').value;
+  const month = document.getElementById('entryMonth').value;
+  const desc = document.getElementById('entryDesc').value.trim();
+  const amt = parseFloat(document.getElementById('entryAmt').value);
+  const payMethod = type === 'income' ? null : document.getElementById('entryPayMethod').value;
+  if (!amt || amt <= 0) return;
+  entries.push({ month, type, desc, amount: amt, payMethod });
+  saveEntries(entries);
+  document.getElementById('entryDesc').value = '';
+  document.getElementById('entryAmt').value = '';
+  render();
+}
+
+function deleteEntry(idx) {
+  entries.splice(idx, 1);
+  saveEntries(entries);
+  render();
+}
+
+// Default month select to current month if in range, else first
+monthSelect.value = "2026/06";
+
+// Toggle payment method visibility based on entry type
+const entryTypeSel = document.getElementById('entryType');
+const payMethodSel = document.getElementById('entryPayMethod');
+function togglePayMethod() {
+  payMethodSel.style.display = entryTypeSel.value === 'income' ? 'none' : '';
+}
+entryTypeSel.addEventListener('change', togglePayMethod);
+togglePayMethod();
+
+render();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => {
+      console.log('Service worker registration failed:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
